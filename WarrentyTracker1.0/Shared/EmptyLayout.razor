@@ -1,0 +1,15 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+	@*added color to the sidebar*@
+	@*added a about page on the top row*@
+	<main>
+		<div class="top-row px-4">
+			<NavLink class= "nav-link"href="/about">About</NavLink>
+		</div>
+
+		<article class="content px-4">
+			@Body
+		</article>
+	</main>
+</div>

@@ -1,0 +1,120 @@
+﻿@page "/warrenties"
+@using WarrentyTracker1._0.Data
+@using WarrentyTracker1
+@using WarrentyTracker1._0.Models;
+@using CsvHelper
+@using System.IO
+@using System.Globalization
+@using Microsoft.VisualBasic.FileIO
+@using System.Collections.Generic
+
+@*header*@
+<h1>Warrenty Tracker</h1>
+@*page instructions *@
+<p>Welcome to your warranty page. Here you can view all of your registered warranties.</p>
+<div class="buttons" style="display: flex; padding-bottom: 20px; gap: 2em;">
+        <button @onclick="SaveWarranties" class="btn btn-primary">Save Warranties</button>
+        <button @onclick="LoadWarranties" class="btn btn-primary">Load Warranties</button>
+        <button @onclick="ClearWarranties" class="btn btn-primary">Clear Warranties</button>
+        <h5 style="padding-top: 10px">@statusMessage</h5>
+    </div>
+
+
+
+
+@*Table of warrenties + logic*@
+@if (Shared.WarrantyList.ListofWarranties.Count == 0)
+{
+	<p><em>Please add or load your warranties.</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+                <th>Product Name</th>
+                <th>Product Description</th>
+                <th>Warrenty Covers</th>
+                <th>Warranty Expiry</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Warranty in Shared.WarrantyList.ListofWarranties)
+            {
+                <tr>
+                    <td>@Warranty.GetSetManu</td>
+                    <td>@Warranty.GetSetDesc</td>
+                    <td>@Warranty.GetSetCover</td>
+                    <td>@Warranty.GetSetExpiry.ToShortDateString()</td>
+                </tr>
+			}
+		</tbody>
+	</table>
+}
+@*C# Code Goes here eg classes ,methods*@
+@code {
+    //Sets filePath to desktop
+    string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MyWarranties.csv");
+    string statusMessage = "";
+
+    private void SaveWarranties()
+    {
+        //Make sure there are warranties in the list
+        if (Shared.WarrantyList.ListofWarranties.Count > 0)
+        {
+            try
+            {
+                //Creates new steamwriter object
+                StreamWriter writer = new StreamWriter(filePath);
+
+                //Writes each warranty in the list into the format of a .csv file
+                foreach (var warranty in Shared.WarrantyList.ListofWarranties)
+                {
+                    writer.WriteLine(warranty.GetSetManu + "," + warranty.GetSetDesc + "," + warranty.GetSetCover + "," + warranty.GetSetExpiry);
+                }
+                writer.Close();
+                statusMessage = "Warranties Saved! Check your documents folder.";
+            }
+            catch (System.IO.IOException ex)
+            {
+                statusMessage = "Please close your warranties file before saving.";
+            }
+
+        }
+    }
+
+    private void LoadWarranties()
+    {
+        //Checks if there is a file that exists already
+        if (File.Exists(filePath))
+        {
+            //Empty list ready for the loaded list
+            Shared.WarrantyList.ListofWarranties.Clear();
+
+            //Parse each part of the csv file back into adding objects into the list.
+            using (TextFieldParser parser = new TextFieldParser(filePath))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+
+                while (!parser.EndOfData)
+                {
+                    string[] fields = parser.ReadFields();
+                    Shared.WarrantyList.ListofWarranties.Add(new NewWarranty(fields[0], fields[1], fields[2], DateTime.Parse(fields[3])));
+                }
+            }
+            statusMessage = "Warranties Loaded.";
+        }
+        else
+        {
+            statusMessage = "There's not file to load. Save something first before trying to load.";
+        }
+    }
+
+    private void ClearWarranties()
+    {
+        //Empty list
+        Shared.WarrantyList.ListofWarranties.Clear();
+        statusMessage = "Warranties Cleared.";
+    }
+}

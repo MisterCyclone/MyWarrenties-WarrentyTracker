@@ -1,0 +1,44 @@
+﻿
+<div class="top-row ps-3 navbar navbar-dark">
+	@*added image banner below*@
+	<img src="./Images/logowhite.png" height="50" width="200"/>
+	<div  class="container-fluid">
+		<a class="navbar-brand" href=""></a>
+		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+	</div>
+</div>
+@*added navigation through the application*@
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+	<nav class="flex-column">
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="home" Match="NavLinkMatch.All">
+				<span class="oi oi-home" aria-hidden="true"></span> Home
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="addWarrenty">
+				<span class="oi oi-plus" aria-hidden="true"></span> Add a Warrenty
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="warrenties">
+				<span class="oi oi-list-rich" aria-hidden="true"></span> Warrenties
+			</NavLink>
+		</div>
+		
+	</nav>
+</div>
+@code {
+	private bool collapseNavMenu = true;
+
+	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+	private void ToggleNavMenu()
+	{
+		collapseNavMenu = !collapseNavMenu;
+
+	}
+}
+

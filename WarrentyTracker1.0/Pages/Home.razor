@@ -1,0 +1,104 @@
+﻿@page "/Home"
+@using WarrentyTracker1._0.Data
+@inject StateContainer StateContainer;
+@inject NavigationManager NavManager;
+
+@*Alfie's HTML - Start*@
+@*header*@
+<p class="homeWelcome">Welcome!</p>
+
+<div class="homeContents" style="flex-direction: row; justify-content: space-evenly; align-items:baseline">
+    <div class="homeContents" style="flex-direction: column; justify-content: center">
+        <h2>So far, you have...</h2>
+        <p style="font-size: 42px"> @currentCount</p>
+        <h2>Warranties in your list.</h2>
+    </div>
+
+    <div class="homeContents" style="flex-direction: column; justify-content: center;">
+        <h2>Warranties close to expiry. (@timeText)</h2>
+            <div class="buttons">
+                <button @onclick="SixMonths" class="btn btn-primary">6 Months</button>
+                <button @onclick="OneMonth" class="btn btn-primary">1 Month</button>
+                <button @onclick="OneWeek" class="btn btn-primary">1 Week</button>
+            </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Product Description</th>
+                    <th>Warrenty Covers</th>
+                    <th>Warranty Expiry</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Warranty in timedList)
+                {
+                    <tr>
+                        <td>@Warranty.GetSetManu</td>
+                        <td>@Warranty.GetSetDesc</td>
+                        <td>@Warranty.GetSetCover</td>
+                        <td>@Warranty.GetSetExpiry.ToShortDateString()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@*Alfie's HTML - End*@
+
+
+@code {
+    protected override void OnInitialized()
+    {
+        //auth guard 
+        if (StateContainer.CurrentUser == null)
+        {
+            NavManager.NavigateTo("/");
+        }
+    }
+
+    private void SixMonths() { timeFrame(1); }
+    private void OneMonth() { timeFrame(2); }
+    private void OneWeek() { timeFrame(3); }
+
+    private void timeFrame (int dateType)
+    {
+        timedList.Clear();
+        switch(dateType)
+        {
+            case 1: timeText = "Six Months"; 
+                foreach (var Warranty in Shared.WarrantyList.ListofWarranties)
+                {
+                    if (Warranty.GetSetExpiry < DateTime.Now.AddMonths(6) && Warranty.GetSetExpiry > DateTime.Now)
+                    {
+                        timedList.Add(Warranty);
+                    }
+                }
+            break;
+            case 2: timeText = "One Month"; 
+                foreach (var Warranty in Shared.WarrantyList.ListofWarranties)
+                {
+                    if (Warranty.GetSetExpiry < DateTime.Now.AddMonths(1) && Warranty.GetSetExpiry > DateTime.Now)
+                    {
+                        timedList.Add(Warranty);
+                    }
+                }
+            break;
+            case 3: timeText = "One Week"; 
+                foreach (var Warranty in Shared.WarrantyList.ListofWarranties)
+                {
+                    if (Warranty.GetSetExpiry < DateTime.Now.AddDays(7) && Warranty.GetSetExpiry > DateTime.Now)
+                    {
+                        timedList.Add(Warranty);
+                    }
+                }
+            break;
+        }
+    }
+
+    private string timeText = "One Week";
+    private int currentCount = Shared.WarrantyList.ListofWarranties.Count;
+    private List<NewWarranty> timedList = new List<NewWarranty>();
+}
+
+

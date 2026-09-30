@@ -1,0 +1,153 @@
+﻿@page "/"
+@using FirebaseAdmin.Auth;
+@using WarrentyTracker1
+@using WarrentyTracker1._0.Models;
+@using WarrentyTracker1._0.Services;
+@using System.Diagnostics;
+@using Firebase.Auth.Providers;
+@using Firebase.Auth;
+@inject NavigationManager NavManager;
+@inject IAppService AppService;
+@inject IJSRuntime JS;
+@inject StateContainer StateContainer;
+@layout EmptyLayout;
+@inject IJSRuntime JsRuntime;
+
+@*Niko's styling start*@
+
+<div class="login-logo">
+	<img src="./Images/logoblack.png" height="60" width="240" />
+</div>
+<div class="login-message" style="justify-content:space-around;">
+	<h1>Welcome to MyWarranties!</h1>
+</div>
+
+@* directions on page*@
+
+<div class="landing-info" style="flex-direction:row; justify-content: space-around;">
+	<div class="login-welcome" style="flex-direction: column; justify-content:right;">
+		<div class="create-page">
+			<h1>Login</h1>
+		</div>
+		<div class="create-info">
+			<p1>Please login here!</p1>
+		</div>
+	</div>
+	<div class="create-info" style="flex-direction: column; justify-content:right;">
+		<div class="create-page">
+			<h1>Create an Account</h1>
+		</div>
+		<div class="create-info">
+			<p1>Please enter all details correctly</p1>
+		</div>
+	</div>
+</div>
+
+<div class="landing-page" style="flex-direction:row; justify-content: space-around;">
+
+	@*Edit form model conforming to the login model below*@
+
+	<EditForm Model="@loginModel" OnValidSubmit="Submit">
+		<DataAnnotationsValidator />
+		<div class="Login-boxes" style="flex-direction: column;">
+			<div class="loginForm-User">
+				<p2>Username:</p2>
+				<input type="EMail" @bind-value="loginModel.EMail" placeholder="Enter your Email" style="font-weight:bold; outline:auto;">
+				<ValidationMessage For="@(() => loginModel.EMail)" />
+			</div>
+			<div class="loginForm-Pass">
+				<p2>Password: </p2>
+				<input type="Password" @bind-value="loginModel.Password" placeholder="Enter your Password" style="font-weight:bold; outline:auto;">
+				<ValidationMessage For="@(() => loginModel.Password)" />
+			</div>
+			<div class="login-buttons" style="flex-direction: row;">
+				<div class="buttons">
+					<button class="btn btn-primary" type="submit">
+						<span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+						Sign in
+					</button>
+				</div>
+			</div>
+		</div>
+	</EditForm>
+
+	@*create an account form*@
+
+	<EditForm Model="@registrationModel" OnValidSubmit="Submit">
+		<DataAnnotationsValidator />
+		<div class="create-boxes" style="flex-direction: column; justify-content: space-around;">
+			<div class="create-user">
+				<p10>Enter Your E-Mail:</p10>
+				<input class="Users_Email" type="email" @bind-value="registrationModel.EMail" placeholder="Please enter a valid Email">
+				<ValidationMessage For="@(() => registrationModel.EMail)" />
+			</div>
+			<div class="create-pass">
+				<p10>Enter A Password:</p10>
+				<input class="Users_Password" type="password" @bind-value="registrationModel.Password" placeholder="Please enter a Password">
+				<ValidationMessage For="@(() => registrationModel.Password)" />
+			</div>
+			<div class="create-buttons" style="flex-direction:row;">
+				<button class="btn btn-primary">
+					Create Account
+					<span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+				</button>
+			</div>
+		</div>
+	</EditForm>
+</div>
+
+<div class="footer">
+	<div class="terms" style="flex-direction: column; justify-content: center;">
+		<p3>Please read our terms and conditions before signing up to our service</p3>
+	</div>
+</div>
+@*Niko's styling end*@
+
+@*login code*@
+@code
+{
+	LoginModel loginModel = new();
+	private string _spinnerClass = "";
+	private async void Submit()
+	{
+		_spinnerClass = "spinner-border spinner-border-sm";
+		await JS.InvokeVoidAsync("test");
+		_spinnerClass = "";
+		this.StateHasChanged();
+		var client = new FirebaseAuthClient(FirebaseCredentials.GetConfig());
+		try
+		{
+			StateContainer.CurrentUser = await client.SignInWithEmailAndPasswordAsync(loginModel.EMail, loginModel.Password);
+			Debug.WriteLine("signed in");
+			NavManager.NavigateTo("/home");
+		}
+		catch
+		{
+			StateContainer.CurrentUser = null;
+			Debug.WriteLine("Could not sign in");
+			await JsRuntime.InvokeVoidAsync("alert", "Invalid Username or Password!");
+		}
+	}
+}
+
+@*create acount code*@
+@code {
+	RegistrationModel registrationModel = new();
+	private string _spinnerClass2 = "";
+
+	public async void Submit2()
+	{
+		_spinnerClass2 = "spinner-border spinner-border-sm";
+		await JS.InvokeVoidAsync("test");
+		_spinnerClass2 = "";
+		this.StateHasChanged();
+
+
+		var client = new FirebaseAuthClient(FirebaseCredentials.GetConfig());
+
+		StateContainer.CurrentUser = await client.CreateUserWithEmailAndPasswordAsync(registrationModel.EMail, registrationModel.Password);
+		NavManager.NavigateTo("/");
+
+	}
+
+}

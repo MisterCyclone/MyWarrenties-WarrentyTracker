@@ -1,0 +1,89 @@
+﻿@page "/addWarrenty"
+@using WarrentyTracker1
+@using WarrentyTracker1._0.Models;
+
+@*Alfie's HTML - Start*@
+@*header and instructions*@
+<div class="addWelcome">
+    <p style="text-decoration: underline; font-size: 60px;">Add Warranty</p>
+    <div class="infoText">
+        <h4>Here you can add a new warranty to your list.</h4>
+    </div>
+
+    <div class="infoText">
+        <h4>You have to set what the product is, what it covers and when it'll expire.</h4>
+    </div>
+
+    <div class="infoText">
+        <h4>Setting a reminder and description is optional.</h4>
+    </div>
+</div>
+
+@*Texboxes created by Jack. Styling Done by Alfie*@
+@*constructing a form for user input*@
+<EditForm Model="@addWarrentyModel" OnValidSubmit="submit">
+    <DataAnnotationsValidator />
+    
+        @*Product Manafacturers*@
+        <div class="addPageBox" style="padding-right: 14px;">
+            <h5>Product Name</h5>
+            <div class="Users_Product_Input">
+                <input class="txt txt-Input-Product" @bind-value="addWarrentyModel.ProductManafacturers" placeholder="Product Name?">
+                <ValidationMessage For="@(() => addWarrentyModel.ProductManafacturers)" />
+            </div>
+        </div>
+
+        @*Product Description*@
+        <div class="addPageBox" style="padding-right: 63px;">
+            <h5>Product Description</h5>
+            <div class="Users_Description_Input">
+                <input class="txt txt-Input-Description" @bind-value="addWarrentyModel.ProductDescription" placeholder="Product Description?">
+                    <ValidationMessage For="@(() => addWarrentyModel.ProductDescription)" />
+            </div>
+        </div>
+
+        @*Warrenty Covers*@
+        <div class="addPageBox" style="padding-right: 33px;">
+            <h5>Warrenty Covers</h5>
+            <div class="Users_Coverage_Input">
+                <input class="txt txt-Input-Coverage" @bind-value="addWarrentyModel.WarrentyCovers" placeholder="Warranty Covers?">
+                <ValidationMessage For="@(() => addWarrentyModel.WarrentyCovers)" />
+            </div>
+        </div>
+
+        @*Warranty Expiry*@
+        <div class="addPageBox" style="padding-right: 70px;">
+            <h5>Warrenty Expires</h5>
+            <div class="Users_Date_Input">
+                <input Type="date" class="txt txt-Input-Date" @bind-value="addWarrentyModel.WarrentyExpiry" placeholder="Warrenty Expiry Date?">
+                <ValidationMessage For="@(() => addWarrentyModel.WarrentyExpiry)" />
+            </div>
+        </div>
+
+        <div class="addPageBox" style="padding-right: 58px;">
+            <div class="buttons">
+                <button class="btn btn-primary" type="submit">
+                    <span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+                    Submit
+                </button>
+            </div>
+        </div>
+
+
+@*Alfie's HTML - End*@
+    
+</EditForm>
+
+@*C# Code Goes here eg logic, classes ,methods*@
+@code {
+    AddWarrentyModel addWarrentyModel = new AddWarrentyModel();
+    private string _spinnerClass = "";
+    private async void submit()
+    {
+        _spinnerClass = "spinner-border spinner-border-sm";
+        await Task.Delay(500);
+        _spinnerClass = "";
+        this.StateHasChanged();
+        Shared.WarrantyList.ListofWarranties.Add(new NewWarranty(addWarrentyModel.ProductManafacturers, addWarrentyModel.ProductDescription, addWarrentyModel.WarrentyCovers, DateTime.Parse(addWarrentyModel.WarrentyExpiry)));
+    }
+}
